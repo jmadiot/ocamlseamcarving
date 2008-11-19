@@ -3,7 +3,12 @@ open Traitement;;
 
 open_graph " 1600x600";;
 
-let seam = Seam.init (Ppm.matrix (Ppm.file "Hugo (copie).Feree.ppm"));;
+let arg = Sys.argv.(1);;
+let _ = Sys.command (Printf.sprintf "convert %s %s.ppm" arg arg);;
+let image = Ppm.file (arg ^ ".ppm");;
+let _ = Sys.command (Printf.sprintf "rm %s.ppm" arg) in ();;
+
+let seam = Seam.init (Ppm.matrix image);;
 
 let energy = Seam.energy seam;;
 let ma = maxmatrix energy;;
@@ -137,8 +142,8 @@ let modify_energy (x,y,coul) =
 	let _,h = dims energy in
 	for i=0 to cw-1 do
 		for j=0 to ch-1 do
-			if cur.(j).(i) = white then
-				putforce energy (x+i-cw/2) (h-(y+j-ch/2)) (if coul=white then ma else 0);
+			if cur.(j).(i) <> transp then
+				putforce energy (x+i-cw/2) (h-(y+j-ch/2)) (if cur.(j).(i)=white then ma else 0);
 		done;
 	done;
 in
