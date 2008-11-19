@@ -1,13 +1,13 @@
-(*JM*)
 let reports = Array.create 100 ("", 0.0 );;
+
 let report n s = reports.(n) <- (s, Sys.time());;
+
 let endreport n =
 	let (s,t) = reports.(n) in
 	print_string ("REPORT(" ^ s ^ ") : ");
 	print_float ((Sys.time())-.t);
 	print_newline();
 ;;
-(*JM*)
 
 
 open Graphics;;
