@@ -1,110 +1,61 @@
 open Graphics;;
 open Traitement;;
-open Interface;;
 
 open_graph " 1600x600";;
  
-let curseur      = make_image curseurmat;;
-let curseurnoir  = make_image curseurnoir;;
-let curseurblanc = make_image curseurblanc;;
-
 let image = Ppm.file Sys.argv.(1);;
 
 let seam = Seam.init image;;
 
+
+(* CI-DESSOUS ON EDITE LA MATRICE D'ENERGIE CALCULEE CI-DESSUS. *)
+
 let energy = Seam.energy seam;;
-let rb = make_rainbow_gray energy;;
-let fond = make_image rb;;
 
-let cw, ch = dims curseurmat;;
+(* On crée une image décontrastée *)
+let fond = make_image (make_rainbow_gray energy);;
 
-let curs c = if c=white then curseurblanc else curseurnoir;;
+(* Interface : l'utilisateur modifie sa fonction d'énergie comme il veut *)
+let filtre = Interface.get_filter fond;;
 
-auto_synchronize false;
-let points = ref [];;
-let w,h = dims energy in
-let last = ref (-1,-1) in
-let isclicking = ref false in
-let editing = ref true in
-let coul = ref white in
-while !editing do
-	let e = wait_next_event [Poll; Mouse_motion; Button_down] in
-	clear_graph();
-	let x,y = e.mouse_x, e.mouse_y in
-	
-	if e.button && in_rect (0,0,w,h) x y then begin
-		if !isclicking then superline !last (x,y) !coul points;
-		last := (x,y);
-		points := (x,y, !coul) :: !points;
-	end;
-	
-	isclicking := e.button;
-	
-	draw_image fond 0 0;
-	
-	List.iter (fun (x,y,coul)->draw_image (curs coul) (x-cw/2) (y-ch/2);) (List.rev !points);
-	
-	let cond = e.button && x>=0 && x<w && y>=0 && y<h in
-	let _  = build_button (if e.button then "S" else " ") 150 520 in
-	let _  = build_button (if cond     then "R" else " ") 170 520 in
-	let _  = build_button (let ax,ay = !last in Printf.sprintf "xy %d,%d - %d,%d" ax ay x y) 20 560 in
-	let rect  = build_button "SeamCarve-moi !" 300 520 in
-	let blanc = build_button "Important"       250 570 in
-	let noir  = build_button "Pas important"   250 545 in
-	
-	if e.button & in_rect rect  x y then editing := false;
-	if e.button & in_rect noir  x y then coul := black;
-	if e.button & in_rect blanc x y then coul := white;
-
-	draw_image (curs !coul) (e.mouse_x-cw/2) (e.mouse_y-ch/2);
-
-	synchronize();
-done;
-auto_synchronize true;
-
-let curblanc = dump_image curseurblanc in
-let curnoir  = dump_image curseurnoir in
-let safe_set matrix x y v =
-	let w, h = dims matrix in
-	if 0<=x & x<w & 0<=y & y<h then	
-		matrix.(y).(x) <- v;
-in
-
+(* mise à jour de la matrice d'énergie *)
 let ma = maxmatrix energy in
-let modify_energy (x,y,coul) =
-	let cur = if coul=white then curblanc else curnoir in
-	let cw, ch = dims cur in
-	let _,h = dims energy in
-	for i=0 to cw-1 do
-		for j=0 to ch-1 do
-			if cur.(j).(i) <> transp then
-			safe_set energy (x+i-cw/2) (h-(y+j-ch/2)) (if cur.(j).(i)=white then ma else 0);
-		done;
+let w,h = dims filtre in
+for x=0 to w-1 do
+	for y=0 to h-1 do
+		let c = filtre.(y).(x) in 
+		if c <> transp then
+			energy.(y).(x) <- if c=0 then 0 else ma;
 	done;
-in
-
-List.iter modify_energy (List.rev !points);
+done;
 ;;
 
-
-
-
-
-
-let wait s = let t = Sys.time () in while Sys.time() < t+.s do () done;;
-
-wait 2.;;
-
-let w,h = dims (Seam.get seam) in
+(* réduction horizontale de l'image *)
+let w,h = dims image in
+auto_synchronize false;
 for i = 1 to w-5 do
 	Seam.shrink seam 1;
+	clear_graph();
 	Ppm.dump (Seam.get seam) 0 0;
-	let w,h = dims (Seam.get seam) in
-	set_color white;moveto w 0;lineto w h;
-done;;
+	draw_image (make_image (make_rainbow (Seam.energy seam))) (w+10) 0;
+	synchronize();
+done;
+auto_synchronize true;;
 
+Interface.wait_escape ();;
 
-let e = ref (wait_next_event [Poll]) in
-while not !e.keypressed or !e.key <> (char_of_int 27) do
-	e := wait_next_event [Button_down; Key_pressed];
-done;;
+(*
+
+Remain to do :
+- Gomme pour l'édition du filtre
+- Commande du nombre de pixels à enlever,
+- Et dans quelle direction
+
+- autres fonctionnalité : mettre en évidence un élément
+- autre fonction d'énergie initiale
+
+- vérifier compatibilité avec le sujet
+
+- recalculer la fonction d'énergie
+
+*)

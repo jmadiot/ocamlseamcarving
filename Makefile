@@ -28,3 +28,11 @@ so: all
 
 on:
 	./main
+
+rapport:
+	pdflatex rapport.tex > .log_pdflatex
+	evince rapport.pdf
+
+cleanrapport:
+	rm rapport.aux  rapport.log  rapport.pdf
+
