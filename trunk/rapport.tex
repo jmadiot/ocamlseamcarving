@@ -24,6 +24,19 @@ On doit réaliser un programme permettant de :
 \item{-redimensionner l'image en hauteur ou en largeur}
 \item{-permettre la modification de la fonction d'énergie par la souris}
 
+
+\section{Utilisation du programme}
+
+Lors de l'ouverture du programme l'utilisateur donne le chemin d'accès de l'image qu'il veut modifier. L'image d'énergie (image donnée à partir de la matrice d'énergie) de celle-ci est alors affichée à l'écran. L'utilisateur peut alors choisir soit de réduire la taille de l'image directement, soit de spécifier des zones de faibles ou fortes énergie (un clic sur le bouton correspondant puis colorier l'image) puis de réduire l'image à l'écran.
+
+\section{Fichiers et modules utilisés}
+
+Nous avons utilisé plusieurs fichiers pour réaliser ce projet : 
+\item{-interface.ml permet de gérer l'ensemble de l'interface} 
+\item{-ppm.ml permet de gérer les images. Il permet de gérer des fonctions de lecture d'images en ppm ainsi que de les  convertir en matrice}
+\item{-main.ml est le fichier principal qui utilise les fonctions définies dans les autres fichiers.}
+\item{-traitement.ml permet de gérer les opérations sur les matrices d'images (enlever une colonne).} 
+
 \section{Problèmes rencontrés et solutions utilisées}
 
 
@@ -49,9 +62,7 @@ On a lu les fichiers caractère par caractère afin de les stocker dans une matr
 
 
 \subsection{interface graphique}
-Il a fallu crée une interface graphique et donc apprendre a manipuler le module Graphics de Caml
+Il a fallu créer une interface graphique et donc apprendre a manipuler le module Graphics de Caml.
 
-modif
-JM
 
 \end{document}
