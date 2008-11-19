@@ -10,13 +10,13 @@ let curseurblanc = make_image curseurblanc;;
 
 let image = Ppm.file Sys.argv.(1);;
 
-let seam = Seam.init (Ppm.matrix image);;
+let seam = Seam.init image;;
 
 let energy = Seam.energy seam;;
 let rb = make_rainbow_gray energy;;
 let fond = make_image rb;;
 
-let cw, ch = dims (dump_image curseur);;
+let cw, ch = dims curseurmat;;
 
 let curs c = if c=white then curseurblanc else curseurnoir;;
 
@@ -33,7 +33,7 @@ while !editing do
 	let x,y = e.mouse_x, e.mouse_y in
 	
 	if e.button && in_rect (0,0,w,h) x y then begin
-		let ax,ay = !last in if !isclicking then superline ax ay x y !coul points;
+		if !isclicking then superline !last (x,y) !coul points;
 		last := (x,y);
 		points := (x,y, !coul) :: !points;
 	end;
@@ -41,7 +41,7 @@ while !editing do
 	isclicking := e.button;
 	
 	draw_image fond 0 0;
-	draw_image curseur (e.mouse_x-cw/2) (e.mouse_y-ch/2);
+	
 	List.iter (fun (x,y,coul)->draw_image (curs coul) (x-cw/2) (y-ch/2);) (List.rev !points);
 	
 	let cond = e.button && x>=0 && x<w && y>=0 && y<h in
@@ -55,15 +55,19 @@ while !editing do
 	if e.button & in_rect rect  x y then editing := false;
 	if e.button & in_rect noir  x y then coul := black;
 	if e.button & in_rect blanc x y then coul := white;
+
+	draw_image (curs !coul) (e.mouse_x-cw/2) (e.mouse_y-ch/2);
+
 	synchronize();
 done;
 auto_synchronize true;
+
 let curblanc = dump_image curseurblanc in
-let curnoir = dump_image curseurnoir in
-let putforce matrice x y v =
-	let w,h=dims matrice in
+let curnoir  = dump_image curseurnoir in
+let safe_set matrix x y v =
+	let w, h = dims matrix in
 	if 0<=x & x<w & 0<=y & y<h then	
-		matrice.(y).(x) <- v;
+		matrix.(y).(x) <- v;
 in
 
 let ma = maxmatrix energy in
@@ -74,13 +78,12 @@ let modify_energy (x,y,coul) =
 	for i=0 to cw-1 do
 		for j=0 to ch-1 do
 			if cur.(j).(i) <> transp then
-				putforce energy (x+i-cw/2) (h-(y+j-ch/2)) (if cur.(j).(i)=white then ma else 0);
+				safe_set energy (x+i-cw/2) (h-(y+j-ch/2)) (if cur.(j).(i)=white then ma else 0);
 		done;
 	done;
 in
 
 List.iter modify_energy (List.rev !points);
-
 ;;
 
 
@@ -95,7 +98,7 @@ wait 2.;;
 let w,h = dims (Seam.get seam) in
 for i = 1 to w-5 do
 	Seam.shrink seam 1;
-	Ppm.dump (Ppm.im (Seam.get seam)) 0 0;
+	Ppm.dump (Seam.get seam) 0 0;
 	let w,h = dims (Seam.get seam) in
 	set_color white;moveto w 0;lineto w h;
 done;;

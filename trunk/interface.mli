@@ -2,7 +2,7 @@ val curseurmat : Graphics.color array array
 val curseurnoir : Graphics.color array array
 val curseurblanc : Graphics.color array array
 
-val superline :  int -> int -> int -> int -> 'a -> (int * int * 'a) list ref -> unit
+val superline :  (int*int) -> (int*int) -> 'a -> (int * int * 'a) list ref -> unit
 
 val build_button : string -> int -> int -> int * int * int * int
 
