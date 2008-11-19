@@ -101,9 +101,6 @@ for i = 1 to w-5 do
 done;;
 
 
-
-
-
 let e = ref (wait_next_event [Poll]) in
 while not !e.keypressed or !e.key <> (char_of_int 27) do
 	e := wait_next_event [Button_down; Key_pressed];
