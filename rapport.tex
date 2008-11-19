@@ -1,0 +1,54 @@
+\documentclass{article}
+ \usepackage[utf8]{inputenc}
+ \usepackage[T1]{fontenc}
+ \usepackage[normalem]{ulem}
+ \usepackage[french]{babel}
+ \usepackage{verbatim}
+ \usepackage{graphicx}
+
+\title{Projet Caml: Seam Carving}
+\author{Jean-Marie Madiot, Sylvain Dailler}
+\date{20/11/08}
+
+
+\begin{document}
+\maketitle{}
+\abstract{Le but de ce projet est d'écrire un programme Caml permettant de lire une image et de la redimensionner par la méthode du seam carving}
+
+\section{Cahier des Charges}
+
+On doit réaliser un programme permettant de :
+\item{-ouvrir une image en ppm en couleur}
+\item{-utiliser une fonction d'énergie afin de redimensionner cette image}
+\item{-eventuellement afficher cette image}
+\item{-redimensionner l'image en hauteur ou en largeur}
+\item{-permettre la modification de la fonction d'énergie par la souris}
+
+\section{Problèmes rencontrés et solutions utilisées}
+
+
+
+\subsection{Traitement de l'image}
+
+\subsubsection{Format des images}
+
+Lorsque l'on ouvre les images, elles sont au format ppm. On les convertit en matrice de triplet d'entiers correspondants aux 3 couleurs de base (rouge, vert, bleu) afin de pouvoir calculer la fonction d'énergie et effectuer la réduction. 
+
+\subsubsection{Fonction d'énergie}
+
+On a implémenté la fonction d'énergie utilisant le gradient. Cette fonction d'énergie pose un problème aux bords car on ne peut pas utiliser la dérivée. La formule aux bords devient donc (exemple bord gauche):
+$dv_i,_0=I(i,0)-I(i,1)$ et $dh_i,_0 = I(i,0)-I(i+1,0)$
+
+\subsubsection{Destruction d'une colonne}
+
+On stocke la colonne à enlever dans une liste.Puis, on crée une autre matrice en copiant la matrice initiale dans cette matrice sans la colonne à enlever.
+ 
+\subsection{Ouverture d'images}
+
+On a lu les fichiers caractère par caractère afin de les stocker dans une matrice. 
+
+
+\subsection{interface graphique}
+Il a fallu crée une interface graphique et donc apprendre a manipuler le module Graphics de Caml
+
+\end{document}
