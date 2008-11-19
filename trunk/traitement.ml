@@ -242,9 +242,9 @@ let indmin2 a b = if a<b then (0,a) else (1,b);;
 let chemin_min energie =
 	let w,h = dims energie in
 
-	let decalage = 800 in
+	(*let decalage = 800 in
 	draw_image (make_image (make_rainbow energie)) decalage 0;
-	set_color white; moveto (decalage+w-1) 0; lineto (decalage+w-1) (h-1);
+	set_color white; moveto (decalage+w-1) 0; lineto (decalage+w-1) (h-1);*)
 	
 	(*JM*) report 2 "chemin_min";
 
