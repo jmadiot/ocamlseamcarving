@@ -17,8 +17,6 @@ let curseurmat =
 let curseurnoir  = Array.map (Array.map (function -1 -> transp | _ -> 0)) curseurmat;;
 let curseurblanc = Array.map (Array.map (function -1 -> transp | _ -> 16777215)) curseurmat;;
 
-
-
 let absi i = if i<0 then -i else i;;
 let sign i = if i<0 then -1 else if i=0 then 0 else 1;;
 
@@ -37,7 +35,7 @@ let superline xa ya xb yb coul points =
 			let x=xa+dx*(y-ya)*sy*sx/dy in
 			points := (x,y,coul):: !points;
 		done
-	end;
+	end;[No log message]
 ;;
 
 
