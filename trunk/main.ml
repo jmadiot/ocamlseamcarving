@@ -21,7 +21,7 @@ let cw, ch = dims curseurmat;;
 let curs c = if c=white then curseurblanc else curseurnoir;;
 
 auto_synchronize false;
-let points = ref [] in
+let points = ref [];;
 let w,h = dims energy in
 let last = ref (-1,-1) in
 let isclicking = ref false in
@@ -78,7 +78,7 @@ let modify_energy (x,y,coul) =
 	for i=0 to cw-1 do
 		for j=0 to ch-1 do
 			if cur.(j).(i) <> transp then
-				safe_set energy (x+i-cw/2) (h-(y+j-ch/2)) (if cur.(j).(i)=white then ma else 0);
+			safe_set energy (x+i-cw/2) (h-(y+j-ch/2)) (if cur.(j).(i)=white then ma else 0);
 		done;
 	done;
 in
