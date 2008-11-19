@@ -9,7 +9,6 @@ let endreport n =
 	print_newline();
 ;;
 
-
 open Graphics;;
 
 
@@ -99,16 +98,7 @@ let make_rainbow_gray m = report 7 "rainbow";
 	rb
 ;;
 	
-
-
-module type triple = sig
-	val sous    : int * int * int -> int * int * int -> int * int * int
-	val plus    : int * int * int -> int * int * int -> int * int * int
-	val carre   : int * int * int -> int * int * int
-	val sqrt    : int * int * int -> int * int * int
-	val somme   : int * int * int -> int
-	val scalaire: int * int * int -> int -> int * int * int
-end
+ 
 
 
 module Triplet = struct
@@ -139,19 +129,6 @@ module Triplet = struct
 		let a,b,c = triplet in
 		d*a,d*b,d*c
 end
-(*
-let rec pow x n = if n=0 then 1 else if n=1 then x else if n mod 2 = 0 then pow (x*x) (n/2) else x*(pow (x*x) (n/2));;
-let triple f (a,b,c) = (f a, f b, f c);;
-let tripled g (a,b,c) (d,e,f) = (g a d, g b e, g c f);;
-let ( -// ) = tripled (-);;
-let ( +// ) = tripled (+);;
-let ( */ ) k = triple (fun x->x*k);;
-let ( ^/ ) x n = triple (fun y->pow y n) x;;
-let sum (x,y,z) = x+y+z;;
-let norme x = sqrt_int (100 *(sum (x ^/ 2)));;   (* en pourcents, pour éviter d'avoir des valeurs trop discrètes *)
-
-*)
-
 
 let sqrt_int n = int_of_float(sqrt(float_of_int n));;
 
@@ -333,15 +310,17 @@ new_matrix;;
 
 
 module type Seamcarving =
-sig
-	type t
-	val init : (int*int*int) array array -> t
-	val shrink : t -> int -> unit
-	val get : t -> (int*int*int) array array
-	val expand : t -> int -> unit
-end;;
+  sig
+    type t
+    val init : (int * int * int) array array -> t
+    val shrink : t -> int -> unit
+    val get : t -> (int * int * int) array array
+    val expand : t -> int -> unit
+    val energy : t -> int array array
+  end
+;;
 
-module Seam = 
+module Seam_raw = 
 struct
 	type t = {
 		mutable pic : (int*int*int) array array;
@@ -367,7 +346,7 @@ struct
 	let set_energy a e = a.energy <- e
 end;;
 
-
+module Seam = (Seam_raw:Seamcarving);;
 
 
 

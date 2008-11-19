@@ -3,7 +3,7 @@ open Traitement;;
 open Interface;;
 
 open_graph " 1600x600";;
-
+ 
 let curseur      = make_image curseurmat;;
 let curseurnoir  = make_image curseurnoir;;
 let curseurblanc = make_image curseurblanc;;

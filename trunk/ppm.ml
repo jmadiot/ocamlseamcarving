@@ -18,12 +18,6 @@ let get_palette s =
 	while !i < n do p := 10 * !p + (digit s.[!i]); incr i; done; !p
 ;;
 
-let make_matrix n l x =
-	let m = Array.create n [||] in
-	for i = 0 to n-1 do m.(i) <- Array.create l x; done; m
-;;
-
-
 type image =
 	{
 		palette : int;
@@ -55,7 +49,7 @@ let file name =
 	if(input_line im <> "P6") then (raise (Image_type_error "Format de ppm P6 nécessaire."));
 	let (w, h) = get_dim (input_line im) in
 	let p = get_palette (input_line im) in		
-	let matrix = make_matrix h w (0,0,0) in
+	let matrix = Array.make_matrix h w (0,0,0) in
 	for i = 0 to h-1 do
 		for j = 0 to w-1 do
 			let r = int_of_char (input_char im) in
