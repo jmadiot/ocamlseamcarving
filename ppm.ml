@@ -47,8 +47,11 @@ let dump im x y =
 		draw_image im x y;
 ;;
 
+
+
 let file name =
-	let im = open_in name in
+	let _ = Sys.command (Printf.sprintf "convert %s %s.ppm" name name) in
+	let im = open_in (name ^ ".ppm") in
 	if(input_line im <> "P6") then (raise (Image_type_error "Format de ppm P6 nécessaire."));
 	let (w, h) = get_dim (input_line im) in
 	let p = get_palette (input_line im) in		
@@ -61,6 +64,7 @@ let file name =
 			matrix.(i).(j) <- (r,g,b);
 		done;
 	done;
+	let _ = Sys.command (Printf.sprintf "rm %s.ppm" name) in
 	{palette=p;w=w;h=h;matrix=matrix}
 ;;
 
@@ -80,4 +84,3 @@ let rgbimage_of_intimage fimage =
 	done;
 	image
 ;;
-

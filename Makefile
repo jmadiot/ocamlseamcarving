@@ -1,5 +1,12 @@
-all: ppm.cmi ppm.cmo traitement.cmi traitement.cmo
-	ocamlc graphics.cma ppm.cmo traitement.cmo main.ml -o main
+all: ppm.cmi ppm.cmo traitement.cmi traitement.cmo interface.cmo interface.cmi
+	ocamlc graphics.cma ppm.cmo traitement.cmo interface.cmo main.ml -o main
+
+interface.cmi:
+	ocamlc -i interface.ml > interface.mli
+	ocamlc -c interface.mli
+
+interface.cmo:
+	ocamlc -c interface.ml
 
 traitement.cmi:
 	ocamlc -i traitement.ml > traitement.mli
