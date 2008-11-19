@@ -1,4 +1,4 @@
-all: ppm.cmi ppm.cmo traitement.cmi traitement.cmo interface.cmo interface.cmi
+all: ppm.cmi ppm.cmo traitement.cmi traitement.cmo interface.cmi interface.cmo
 	ocamlc graphics.cma ppm.cmo traitement.cmo interface.cmo main.ml -o main
 
 interface.cmi:

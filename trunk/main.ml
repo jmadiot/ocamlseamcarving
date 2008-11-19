@@ -24,31 +24,34 @@ auto_synchronize false;
 let points = ref [] in
 let w,h = dims energy in
 let last = ref (-1,-1) in
-let button = ref false in
+let isclicking = ref false in
 let editing = ref true in
 let coul = ref white in
 while !editing do
 	let e = wait_next_event [Poll; Mouse_motion; Button_down] in
 	clear_graph();
 	let x,y = e.mouse_x, e.mouse_y in
+	
 	if e.button && in_rect (0,0,w,h) x y then begin
-		let ax,ay = !last in
-		moveto 100 560;
-		draw_string (Printf.sprintf "xy %d,%d - %d,%d" ax ay x y);
-		if !button then superline ax ay x y !coul points;
+		let ax,ay = !last in if !isclicking then superline ax ay x y !coul points;
 		last := (x,y);
 		points := (x,y, !coul) :: !points;
 	end;
-	button := e.button;
+	
+	isclicking := e.button;
+	
 	draw_image fond 0 0;
 	draw_image curseur (e.mouse_x-cw/2) (e.mouse_y-ch/2);
 	List.iter (fun (x,y,coul)->draw_image (curs coul) (x-cw/2) (y-ch/2);) (List.rev !points);
+	
 	let cond = e.button && x>=0 && x<w && y>=0 && y<h in
 	let _  = build_button (if e.button then "S" else " ") 150 520 in
-	let _  = build_button (if cond then "R" else " ") 170 520 in
+	let _  = build_button (if cond     then "R" else " ") 170 520 in
+	let _  = build_button (let ax,ay = !last in Printf.sprintf "xy %d,%d - %d,%d" ax ay x y) 20 560 in
 	let rect  = build_button "SeamCarve-moi !" 300 520 in
 	let blanc = build_button "Important"       250 570 in
 	let noir  = build_button "Pas important"   250 545 in
+	
 	if e.button & in_rect rect  x y then editing := false;
 	if e.button & in_rect noir  x y then coul := black;
 	if e.button & in_rect blanc x y then coul := white;
