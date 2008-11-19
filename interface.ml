@@ -18,7 +18,7 @@ let curseurnoir  = Array.map (Array.map (function -1 -> transp | _ -> 0)) curseu
 let curseurblanc = Array.map (Array.map (function -1 -> transp | _ -> 16777215)) curseurmat;;
 
 
-let superline xa ya xb yb coul points =
+let superline (xa, ya) (xb, yb) coul points =
 	let absi i = if i<0 then -i else i in
 	let sign i = if i<0 then -1 else if i=0 then 0 else 1 in
 	let dx, dy = absi (xb-xa), absi (yb-ya) in
