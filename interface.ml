@@ -1,5 +1,5 @@
 open Graphics;;
-
+ 
 let curseurmat =
 	let b=rgb 255 255 255 in 
 	let t = transp in
@@ -17,10 +17,10 @@ let curseurmat =
 let curseurnoir  = Array.map (Array.map (function -1 -> transp | _ -> 0)) curseurmat;;
 let curseurblanc = Array.map (Array.map (function -1 -> transp | _ -> 16777215)) curseurmat;;
 
-let absi i = if i<0 then -i else i;;
-let sign i = if i<0 then -1 else if i=0 then 0 else 1;;
 
 let superline xa ya xb yb coul points =
+	let absi i = if i<0 then -i else i in
+	let sign i = if i<0 then -1 else if i=0 then 0 else 1 in
 	let dx, dy = absi (xb-xa), absi (yb-ya) in
 	let sx, sy = sign (xb-xa), sign (yb-ya) in
 	if dx > dy then begin
@@ -35,7 +35,7 @@ let superline xa ya xb yb coul points =
 			let x=xa+dx*(y-ya)*sy*sx/dy in
 			points := (x,y,coul):: !points;
 		done
-	end;[No log message]
+	end;
 ;;
 
 
