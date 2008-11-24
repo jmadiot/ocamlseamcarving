@@ -11,7 +11,7 @@ let reductions = Interface.get_objectif image;;
 
 (* initialisation *)
 let seam = Seam.init image;;
-let energy = Seam.energy seam;;
+let energy = Seam.get_energy seam;;
 
 (* On crée une image décontrastée *)
 let fond = make_image (make_rainbow_gray energy);;
@@ -20,11 +20,17 @@ let fond = make_image (make_rainbow_gray energy);;
 let filtre = Interface.get_filter fond;;
 apply_filter energy filtre;;
 
-
 (* réduction/agrandissement dans les deux sens de l'image *)
-Seam.shrink seam reductions true true;;
+Seam.redim seam reductions;;
+
+(* fait joujou avec le résultat *)
+Seam.replayrev seam;
+Seam.replay seam;;
+
 
 Interface.wait_escape ();;
+Seam.replayrev seam;
+Seam.replay seam;;
 
 (*
 

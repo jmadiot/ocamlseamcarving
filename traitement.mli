@@ -11,8 +11,10 @@ module type Seamcarving =
     val shrink : t -> unit
     val get : t -> (int * int * int) array array
     val expand : t -> int -> unit
-    val energy : t -> int array array
-    val redim : t -> int*int -> bool -> bool -> unit
+    val get_energy : t -> int array array
+    val redim : t -> int*int -> unit
+    val replay : t -> unit
+    val replayrev : t -> unit
   end
 
 module Seam : Seamcarving
