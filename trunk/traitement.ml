@@ -3,10 +3,10 @@ let reports = Array.create 100 ("", 0.0 );;
 let report n s = reports.(n) <- (s, Sys.time());;
 
 let endreport n =
-	let (s,t) = reports.(n) in
+	(*let (s,t) = reports.(n) in
 	print_string ("REPORT(" ^ s ^ ") : ");
 	print_float ((Sys.time())-.t);
-	print_newline();
+	print_newline*) ();
 ;;
 
 open Graphics;;
@@ -321,22 +321,17 @@ let apply_filter energy filtre =
 ;;
 
 
-let redim seam (redimx, redimh) afficher_progression afficher_energie =
-	let image = Seam.get seam in
+let rotate image = 
 	let w,h = dims image in
-	let reducx = if redimx<=0 then -redimx else failwith "On ne fait que réduire, désolé"
-	and reducy = if redimy<=0 then -redimy else failwith "On ne fait que réduire, désolé" in
-	resize_window (2*w+10) (h+10);
-	auto_synchronize false;
-	for i = 1 to w-5 do
-		Seam.shrink seam 1;
-		clear_graph();
-		Ppm.dump (Seam.get seam) 0 0;
-		draw_image (make_image (make_rainbow (Seam.energy seam))) (w+10) 0;
-		synchronize();
+	let image_rotate = Array.make_matrix w h image.(0).(0) in	
+	for x = 0 to w-1 do
+		for y = 0 to h-1 do
+			image_rotate.(x).(y) <- image.(y).(x);
+		done;
 	done;
-	auto_synchronize true;
+	image_rotate
 ;;
+
 
 
 module type Seamcarving =
@@ -346,9 +341,14 @@ module type Seamcarving =
     val shrink : t -> unit
     val get : t -> (int * int * int) array array
     val expand : t -> int -> unit
-    val energy : t -> int array array
+    val get_energy : t -> int array array
+    val redim : t -> int*int -> unit
+    val replay : t -> unit
+    val replayrev : t -> unit
   end
 ;;
+
+let wait s = let t = Sys.time () in while Sys.time() < t+.s do () done;;
 
 module Seam_raw = 
 struct
@@ -357,11 +357,13 @@ struct
 		mutable energy : int array array;
 		mutable cost : int array array;
 		mutable preds : int array array;
+		mutable returned : bool;
+		mutable video : Graphics.image list
 	}
 	let init pic =
 		let energy = energy_matrix pic in
 		let cost, preds = chemin_min energy in
-		{pic = pic; energy=energy; cost=cost; preds=preds}
+		{pic = pic; energy=energy; cost=cost; preds=preds; returned=false; video=[]}
 	let shrink a =
 		let seam = build_chemin a.energy a.cost a.preds in
 		a.pic    <- detruire_colonne a.pic seam;
@@ -370,10 +372,64 @@ struct
 		a.cost   <- cost;
 		a.preds  <- preds
 		
-	let get a = a.pic
+	let get_energy a = (if a.returned then rotate else fun x->x) a.energy
+	let get a = (if a.returned then rotate else fun x->x) a.pic
 	let expand a n = ()
-	let energy a = a.energy
 	let set_energy a e = a.energy <- e
+	let shrinkhoriz seam n energypos =
+		auto_synchronize false;
+		for i = 1 to n do
+			shrink seam;
+			clear_graph();
+			let im = Ppm.get_image (get seam) in
+			draw_image im 0 0;
+			seam.video <- im :: seam.video;
+			draw_image (make_image (make_rainbow (get_energy seam))) energypos 0;
+			synchronize();
+		done;
+		auto_synchronize true
+		
+	let redim seam (redimx, redimy) =
+		let image = get seam in
+		let w,h = dims image in
+		let reducx = if redimx<=0 then -redimx else failwith "On ne fait que réduire, désolé"
+		and reducy = if redimy<=0 then -redimy else failwith "On ne fait que réduire, désolé" in
+		resize_window (2*w+10) (h+10);
+		shrinkhoriz seam reducx (w+10);
+		if reducy > 0 then begin
+			seam.pic <- rotate seam.pic;
+			seam.energy <- rotate seam.energy;
+			let cost, preds = chemin_min seam.energy in
+			seam.cost <- cost;
+			seam.preds <- preds;
+			seam.returned <- true;
+			shrinkhoriz seam reducy (w+10);
+		end
+	
+	let replayrev a =
+		let pics = Array.of_list a.video in
+		let n = Array.length pics in
+		auto_synchronize false;
+		for i=0 to n-1 do
+			wait 0.01;
+			clear_graph();
+			draw_image pics.(i) 0 0;
+			synchronize();
+		done;
+		auto_synchronize true
+	
+	let replay a =
+		let pics = Array.of_list a.video in
+		let n = Array.length pics in
+		auto_synchronize false;
+		for i=n-1 downto 0 do
+			wait 0.01;
+			clear_graph();
+			draw_image pics.(i) 0 0;
+			synchronize();
+		done;
+		auto_synchronize true
+		
 end;;
 
 module Seam = (Seam_raw:Seamcarving);;

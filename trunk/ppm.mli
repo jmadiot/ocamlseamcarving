@@ -1,7 +1,5 @@
 exception Image_type_error of string
 
-type image = (int*int*int) array array;;
+val get_image : (int*int*int) array array -> Graphics.image
 
-val dump : image -> int -> int -> unit
-
-val file : string -> image
+val file : string -> (int*int*int) array array

@@ -22,7 +22,7 @@ let get_palette s =
 	while !i < n do p := 10 * !p + (digit s.[!i]); incr i; done; !p
 ;;
 
-let dump matrix x y = 
+let get_image matrix = 
 	let h = Array.length matrix
 	and w = Array.length matrix.(0) in
 	let mat = Array.make_matrix h w 0 in
@@ -33,7 +33,8 @@ let dump matrix x y =
 		done;
 	done;
 	let image = make_image mat in
-	draw_image image x y;
+	(*draw_image image x y;*)
+	image
 ;;
 
 
