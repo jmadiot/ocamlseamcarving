@@ -308,12 +308,42 @@ new_matrix;;
 
 
 
+let apply_filter energy filtre =
+	let ma = maxmatrix energy in
+	let w,h = dims filtre in
+	for x=0 to w-1 do
+		for y=0 to h-1 do
+			let c = filtre.(y).(x) in 
+			if c <> transp then
+				energy.(y).(x) <- if c=0 then 0 else ma;
+		done;
+	done;
+;;
+
+
+let redim seam (redimx, redimh) afficher_progression afficher_energie =
+	let image = Seam.get seam in
+	let w,h = dims image in
+	let reducx = if redimx<=0 then -redimx else failwith "On ne fait que réduire, désolé"
+	and reducy = if redimy<=0 then -redimy else failwith "On ne fait que réduire, désolé" in
+	resize_window (2*w+10) (h+10);
+	auto_synchronize false;
+	for i = 1 to w-5 do
+		Seam.shrink seam 1;
+		clear_graph();
+		Ppm.dump (Seam.get seam) 0 0;
+		draw_image (make_image (make_rainbow (Seam.energy seam))) (w+10) 0;
+		synchronize();
+	done;
+	auto_synchronize true;
+;;
+
 
 module type Seamcarving =
   sig
     type t
     val init : (int * int * int) array array -> t
-    val shrink : t -> int -> unit
+    val shrink : t -> unit
     val get : t -> (int * int * int) array array
     val expand : t -> int -> unit
     val energy : t -> int array array
@@ -332,7 +362,7 @@ struct
 		let energy = energy_matrix pic in
 		let cost, preds = chemin_min energy in
 		{pic = pic; energy=energy; cost=cost; preds=preds}
-	let shrink a n =
+	let shrink a =
 		let seam = build_chemin a.energy a.cost a.preds in
 		a.pic    <- detruire_colonne a.pic seam;
 		a.energy <- detruire_colonne a.energy seam;		
@@ -347,9 +377,5 @@ struct
 end;;
 
 module Seam = (Seam_raw:Seamcarving);;
-
-
-
-
 
 

@@ -4,7 +4,7 @@ all: ppm.cmi ppm.cmo traitement.cmi traitement.cmo interface.cmi interface.cmo
 interface.cmi:
 	ocamlc -c interface.mli
 
-interface.cmo:
+interface.cmo: ppm.cmi
 	ocamlc -c interface.ml
 
 traitement.cmi:
@@ -28,11 +28,3 @@ so: all
 
 on:
 	./main
-
-rapport:
-	pdflatex rapport.tex > .log_pdflatex
-	evince rapport.pdf
-
-cleanrapport:
-	rm rapport.aux  rapport.log  rapport.pdf
-

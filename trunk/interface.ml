@@ -14,7 +14,7 @@ let curseurmat =
 	|]
 ;;
 
-let curseurnoirmat  = Array.map (Array.map (function -1 -> transp | _ -> 0)) curseurmat;;
+let curseurnoirmat  = Array.map (Array.map (function -1 -> transp | _ -> 0)) curseurmat	;;
 let curseurblancmat = Array.map (Array.map (function -1 -> transp | _ -> 16777215)) curseurmat;;
 
 let superline (xa, ya) (xb, yb) coul add =
@@ -74,6 +74,8 @@ let get_filter fond =
 	let cw, ch = dims curseurmat in
 	let w,h = dims (dump_image fond) in
 	
+	resize_window (w+50) (h+50);
+	
 	auto_synchronize false;
 	
 	let filtre = Array.make_matrix h w transp in
@@ -97,21 +99,22 @@ let get_filter fond =
 			last := (x,y);
 		end;
 	
-		clicking := e.button;
-	
 		draw_image fond 0 0;
 	
 		draw_image (make_image filtre) 0 0;
+		
+		let rect  = build_button "Resize"    300 (h+10) in
+		let blanc = build_button "Conserver" 10 (h+30) in
+		let noir  = build_button "Enlever"   10 (h+10) in
 	
-		let rect  = build_button "SeamCarve-moi !" 300 520 in
-		let blanc = build_button "Important"       250 570 in
-		let noir  = build_button "Pas important"   250 545 in
-	
-		if e.button & in_rect rect  x y then editing := false;
-		if e.button & in_rect noir  x y then important := false;
-		if e.button & in_rect blanc x y then important := true;
+		if e.button & not !clicking & in_rect rect  x y then editing := false;
+		if e.button & not !clicking & in_rect noir  x y then important := false;
+		if e.button & not !clicking & in_rect blanc x y then important := true;
 
-		draw_image (if !important then curseur else curseurnoir) (e.mouse_x-cw/2) (e.mouse_y-ch/2);
+		clicking := e.button;
+	
+		if not (in_rect rect x y or in_rect blanc x y or in_rect noir x y) then 
+			draw_image (if !important then curseur else curseurnoir) (e.mouse_x-cw/2) (e.mouse_y-ch/2);
 
 		synchronize();
 	done;
@@ -120,7 +123,39 @@ let get_filter fond =
 	filtre
 ;;
 
+let blanchir = Array.map (Array.map (fun (a,b,c)->a/2+128,b/2+128,c/2+128));;
 
+let get_objectif image =
+	let w,h = dims image in
+	resize_window (2*w+10) (2*h+10);
+	Ppm.dump image 0 0;
+	let nw, nh = ref w, ref h in
+	let editing = ref true in
+	auto_synchronize false;
+	while !editing do
+		let e = wait_next_event [Poll; Mouse_motion; Button_down] in
+		clear_graph();
+		if e.button then editing := false else begin
+			nw := max 0 (e.mouse_x+1);
+			nh := max 0 (e.mouse_y+1);
+			set_color (rgb 220 220 255);
+			fill_rect 0 0 !nw !nh;
+			Ppm.dump image 0 0;
+			for x=0 to !nw-1 do
+				for y=0 to !nh-1 do
+					if in_rect (0,0,w,h) x y then begin
+						let r,g,b = image.(h-1-y).(x) in
+						set_color (rgb (r/2+128) (g/2+128) (b/2+128));
+						plot x y;
+					end;
+				done;
+			done;
+		end;
+		synchronize();
+	done;
+	auto_synchronize true;
+	!nw - w, !nh - h
+;;
 
 let wait s = let t = Sys.time () in while Sys.time() < t+.s do () done;;
 
