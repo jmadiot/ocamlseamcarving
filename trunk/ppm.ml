@@ -2,10 +2,6 @@ open Graphics;;
 
 exception Image_type_error of string;;
 
-type image = (int*int*int) array array;;
-
-
-
 let digit c = (int_of_char c) - (int_of_char '0');;
 
 let get_dim s =
@@ -21,22 +17,6 @@ let get_palette s =
 	let n = String.length s and i = ref 0 and p = ref 0 in 
 	while !i < n do p := 10 * !p + (digit s.[!i]); incr i; done; !p
 ;;
-
-let get_image matrix = 
-	let h = Array.length matrix
-	and w = Array.length matrix.(0) in
-	let mat = Array.make_matrix h w 0 in
-	for i = 0 to (h-1) do
-		for j = 0 to (w-1) do
-			let (r,g,b) = matrix.(i).(j) in
-			mat.(i).(j) <- rgb r g b;
-		done;
-	done;
-	let image = make_image mat in
-	(*draw_image image x y;*)
-	image
-;;
-
 
 
 let file name =
@@ -58,15 +38,3 @@ let file name =
 	matrix
 ;;
 
-let rgbimage_of_intimage fimage =
-	let h=Array.length fimage
-	and w=Array.length fimage.(0) in
-	let image = Array.make_matrix h w 0 in
-	for i = 0 to h-1 do
-		for j = 0 to w-1 do
-			let r,g,b = fimage.(i).(j) in
-			image.(i).(j) <- rgb r g b;
-		done;
-	done;
-	image
-;;

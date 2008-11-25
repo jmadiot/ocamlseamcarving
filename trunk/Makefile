@@ -4,7 +4,7 @@ all: ppm.cmi ppm.cmo traitement.cmi traitement.cmo interface.cmi interface.cmo
 interface.cmi:
 	ocamlc -c interface.mli
 
-interface.cmo: ppm.cmi
+interface.cmo: traitement.cmi
 	ocamlc -c interface.ml
 
 traitement.cmi:
