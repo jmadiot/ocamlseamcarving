@@ -128,7 +128,7 @@ let blanchir = Array.map (Array.map (fun (a,b,c)->a/2+128,b/2+128,c/2+128));;
 let get_objectif image =
 	let w,h = dims image in
 	resize_window (2*w+10) (2*h+10);
-	draw_image (Ppm.get_image image) 0 0;
+	draw_image (Traitement.get_image image) 0 0;
 	let nw, nh = ref w, ref h in
 	let editing = ref true in
 	auto_synchronize false;
@@ -136,11 +136,11 @@ let get_objectif image =
 		let e = wait_next_event [Poll; Mouse_motion; Button_down] in
 		clear_graph();
 		if e.button then editing := false else begin
-			nw := max 0 (e.mouse_x+1);
-			nh := max 0 (e.mouse_y+1);
+			nw := min (max 0 (e.mouse_x+1)) w;
+			nh := min (max 0 (e.mouse_y+1)) h;
 			set_color (rgb 220 220 255);
 			fill_rect 0 0 !nw !nh;
-			let im = Ppm.get_image image in
+			let im = Traitement.get_image image in
 			draw_image im 0 0;
 			for x=0 to !nw-1 do
 				for y=0 to !nh-1 do

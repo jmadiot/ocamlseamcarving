@@ -4,7 +4,7 @@ val maxmatrix : 'a array array -> 'a
 val make_rainbow : int array array -> Graphics.color array array
 val make_rainbow_gray : int array array -> Graphics.color array array
 
-module type Seamcarving =
+module SeamCarving :
   sig
     type t
     val init : (int * int * int) array array -> t
@@ -15,10 +15,9 @@ module type Seamcarving =
     val redim : t -> int*int -> unit
     val replay : t -> unit
     val replayrev : t -> unit
-  end
-
-module Seam : Seamcarving
+ end
 
 val apply_filter : int array array -> Graphics.color array array -> unit
 
+val get_image : (int*int*int) array array -> Graphics.image
 

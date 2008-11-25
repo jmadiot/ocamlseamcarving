@@ -1,16 +1,19 @@
-let reports = Array.create 100 ("", 0.0 );;
-
-let report n s = reports.(n) <- (s, Sys.time());;
-
-let endreport n =
-	(*let (s,t) = reports.(n) in
-	print_string ("REPORT(" ^ s ^ ") : ");
-	print_float ((Sys.time())-.t);
-	print_newline*) ();
-;;
-
 open Graphics;;
 
+let get_image matrix = 
+	let h = Array.length matrix
+	and w = Array.length matrix.(0) in
+	let mat = Array.make_matrix h w 0 in
+	for i = 0 to (h-1) do
+		for j = 0 to (w-1) do
+			let (r,g,b) = matrix.(i).(j) in
+			mat.(i).(j) <- rgb r g b;
+		done;
+	done;
+	let image = make_image mat in
+	(*draw_image image x y;*)
+	image
+;;
 
 let rainbow q =
 	let int, float = int_of_float, float_of_int in
@@ -28,7 +31,7 @@ let rainbow q =
 		| 5 -> rgb t 0 v
 		| 6 -> rgb t v t
 		| 7 -> white
-		| _ -> failwith "Erreur interne qui n'arrivera pas. Pas besoin de raise :)";
+		| _ -> failwith "x%n < x ?";
 ;;
 
 let rainbow_gray q =
@@ -48,7 +51,7 @@ let rainbow_gray q =
 		| 5 -> rgb t o v
 		| 6 -> rgb t v t
 		| 7 -> rgb t t t
-		| _ -> failwith "Erreur interne qui n'arrivera pas. Pas besoin de raise :)";
+		| _ -> failwith "x%n < x ?";
 ;;
 
 
@@ -66,8 +69,7 @@ let maxmatrix m =
 	!ma
 ;;
 
-
-let make_rainbow m = report 7 "rainbow";
+let make_rainbow m =
 	let int, float = int_of_float, float_of_int in
 	let w,h = dims m in
 	let ma = maxmatrix m in
@@ -78,12 +80,12 @@ let make_rainbow m = report 7 "rainbow";
 			let q = (float x) /. (float ma) in
 			rb.(i).(j) <- rainbow q;
 		done;
-	done;endreport 7;
+	done;
 	rb
 ;;
 
 
-let make_rainbow_gray m = report 7 "rainbow";
+let make_rainbow_gray m =
 	let int, float = int_of_float, float_of_int in
 	let w,h = dims m in
 	let ma = maxmatrix m in
@@ -94,11 +96,9 @@ let make_rainbow_gray m = report 7 "rainbow";
 			let q = (float x) /. (float ma) in
 			rb.(i).(j) <- rainbow_gray q;
 		done;
-	done;endreport 7;
+	done;
 	rb
 ;;
-	
- 
 
 
 module Triplet = struct
@@ -132,7 +132,7 @@ end
 
 let sqrt_int n = int_of_float(sqrt(float_of_int n));;
 
-let energy_pixel image x y =
+(*let energy_pixel image x y =
 	let w,h = dims image in
 	let xa, xb, fx = ref (x-1), ref (x+1), ref 1
 	and ya, yb, fy = ref (y-1), ref (y+1), ref 1 in
@@ -149,8 +149,8 @@ let energy_pixel image x y =
 	in
 	sqrt_int ( !fx* !fx*(dxr*dxr+dxg*dxg+dxb*dxb) + !fy* !fy*(dyr*dyr+dyg*dyg+dyb*dyb) )
 ;;
-
-let energy_matrix image =                                                  report 1 "energy_matrix";
+*)
+let energy_matrix image = 
 	let w,h = dims image in
 	
 	let f (x,y,z) (a,b,c) = sqrt_int (x*x+y*y+z*z+a*a+b*b+c*c) in
@@ -159,8 +159,6 @@ let energy_matrix image =                                                  repor
 	
 	let a = ref (0,0,0) and b = ref (0,0,0) in
 	
-	(*let sqrt_int n = int_of_float (10.*.(sqrt (float_of_int n))) in*)
-
 	for i = 1 to h-2 do
 
 		(* bord gauche*)
@@ -213,14 +211,10 @@ let energy_matrix image =                                                  repor
 
 	for i = 1 to h-2 do
 		for j = 1 to w-2 do
-			(*let a = Triplet.sous (image.(i).(j-1)) (image.(i).(j+1))
-			and b = Triplet.sous (image.(i-1).(j)) (image.(i+1).(j)) in
-			energie.(i).(j) <-  f a b;*)
 			energie.(i).(j) <- f (Triplet.sous image.(i).(j-1) image.(i).(j+1)) (Triplet.sous image.(i-1).(j) image.(i+1).(j));
-			(*energie.(i).(j) <- energy_pixel image j i;*)
 		done;
 	done;
-																						endreport 1;
+	
 	energie
 ;;
 
@@ -242,13 +236,7 @@ let indmin2 a b = if a<b then (0,a) else (1,b);;
 let chemin_min energie =
 	let w,h = dims energie in
 
-	(*let decalage = 800 in
-	draw_image (make_image (make_rainbow energie)) decalage 0;
-	set_color white; moveto (decalage+w-1) 0; lineto (decalage+w-1) (h-1);*)
-	
-	(*JM*) report 2 "chemin_min";
-
-	let chemins = copy_matrix energie in (*remplacer par un make_matrix . . 0*)
+	let chemins = Array.make_matrix h w 0 in
 	let preds = Array.make_matrix h w (-42) in
 
 	for i = 1 to h-1 do
@@ -264,8 +252,6 @@ let chemin_min energie =
 			chemins.(i).(j) <- energie.(i).(j) + x;
 		done;
 	done;
-
-	endreport 2;
 
 	chemins, preds
 ;;
@@ -304,10 +290,6 @@ let detruire_colonne matrice chemin =
     done;
 new_matrix;;
 
-
-
-
-
 let apply_filter energy filtre =
 	let ma = maxmatrix energy in
 	let w,h = dims filtre in
@@ -320,7 +302,6 @@ let apply_filter energy filtre =
 	done;
 ;;
 
-
 let rotate image = 
 	let w,h = dims image in
 	let image_rotate = Array.make_matrix w h image.(0).(0) in	
@@ -332,9 +313,7 @@ let rotate image =
 	image_rotate
 ;;
 
-
-
-module type Seamcarving =
+module type SeamCarvingType =
   sig
     type t
     val init : (int * int * int) array array -> t
@@ -347,8 +326,6 @@ module type Seamcarving =
     val replayrev : t -> unit
   end
 ;;
-
-let wait s = let t = Sys.time () in while Sys.time() < t+.s do () done;;
 
 module Seam_raw = 
 struct
@@ -381,7 +358,7 @@ struct
 		for i = 1 to n do
 			shrink seam;
 			clear_graph();
-			let im = Ppm.get_image (get seam) in
+			let im = get_image (get seam) in
 			draw_image im 0 0;
 			seam.video <- im :: seam.video;
 			draw_image (make_image (make_rainbow (get_energy seam))) energypos 0;
@@ -407,6 +384,7 @@ struct
 		end
 	
 	let replayrev a =
+		let wait s = let t = Sys.time () in while Sys.time() < t+.s do () done in
 		let pics = Array.of_list a.video in
 		let n = Array.length pics in
 		auto_synchronize false;
@@ -419,6 +397,7 @@ struct
 		auto_synchronize true
 	
 	let replay a =
+		let wait s = let t = Sys.time () in while Sys.time() < t+.s do () done in
 		let pics = Array.of_list a.video in
 		let n = Array.length pics in
 		auto_synchronize false;
@@ -432,6 +411,6 @@ struct
 		
 end;;
 
-module Seam = (Seam_raw:Seamcarving);;
+module SeamCarving = (Seam_raw:SeamCarvingType);;
 
 
