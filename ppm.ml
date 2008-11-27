@@ -27,8 +27,11 @@ let file name =
 	let _ = Sys.command (Printf.sprintf "convert %s %s.ppm" name name) in
 	let im = open_in (name ^ ".ppm") in
 	if(input_line im <> "P6") then (raise (Image_type_error "Format de ppm P6 nécessaire."));
-	let (w, h) = get_dim (input_line im) in
-	let _ = get_palette (input_line im) in		
+	let ligne = input_line im in
+	(* si cette ligne commence par un #, sauter. (copyrights ....) *)
+	let ligne = if(ligne.[0] = '#') then input_line im else ligne in
+	let (w, h) = get_dim ligne in
+	let _ = get_palette (input_line im) in
 	let matrix = Array.make_matrix h w (0,0,0) in
 	for i = 0 to h-1 do
 		for j = 0 to w-1 do
