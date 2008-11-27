@@ -1,5 +1,5 @@
 all: ppm.cmi ppm.cmo traitement.cmi traitement.cmo interface.cmi interface.cmo
-	ocamlc graphics.cma ppm.cmo traitement.cmo interface.cmo main.ml -o main
+	ocamlc graphics.cma ppm.cmo traitement.cmo interface.cmo main.ml -o seamcarving
 
 interface.cmi:
 	ocamlc -c interface.mli

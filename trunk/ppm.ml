@@ -18,7 +18,6 @@ let get_palette s =
 	while !i < n do p := 10 * !p + (digit s.[!i]); incr i; done; !p
 ;;
 
-
 let file name =
 	let _ = Sys.command (Printf.sprintf "convert %s %s.ppm" name name) in
 	let im = open_in (name ^ ".ppm") in
