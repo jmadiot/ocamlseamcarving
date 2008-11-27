@@ -17,6 +17,7 @@ let curseurmat =
 let curseurnoirmat  = Array.map (Array.map (function -1 -> transp | _ -> 0)) curseurmat	;;
 let curseurblancmat = Array.map (Array.map (function -1 -> transp | _ -> 16777215)) curseurmat;;
 
+(* imprime une ligne de curseur de la bonne couleur dans le filtre *)
 let superline (xa, ya) (xb, yb) coul add =
 	let absi i = if i<0 then -i else i in
 	let sign i = if i<0 then -1 else if i=0 then 0 else 1 in
@@ -37,7 +38,7 @@ let superline (xa, ya) (xb, yb) coul add =
 	end;
 ;;
 
-
+(* Construit un bouton et renvoie ses coordonnées *)
 let build_button text x y =
 	let w,h = text_size text in
 	set_color (rgb 227 227 227); fill_rect (x+1) (y+1) (w+1) h;
@@ -47,13 +48,14 @@ let build_button text x y =
 	x,y,(w+3),(h+2)
 ;;
 
+(* appartenance d'un point à un rectangle. utile pour savoir si l'utilisateur clique sur un bouton *)
 let in_rect (x,y,w,h) a b = x<=a & a<x+w & y<=b & b<y+h;;
 
-
+(* raccourci bien pratique *)
 let dims m = (Array.length m.(0), Array.length m);;
 
-
-
+(* Imprime le contenu d'une matrice dans une plus grande à une 
+position donnée, en veillant à ne pas dépasser les bords *)
 let copy_matrix_into cible source x y =
 	let cw, ch = dims source
 	and w, h = dims cible in
@@ -66,7 +68,7 @@ let copy_matrix_into cible source x y =
 	done;
 ;;
 
-
+(* interface pour éditer la matrice d'énergie *)
 let get_filter fond =
 	let curseur      = make_image curseurmat
 	and curseurnoir  = make_image curseurnoirmat in
@@ -126,8 +128,10 @@ let get_filter fond =
 	filtre
 ;;
 
+(* blanchit l'image d'arrière plan pour mettre en évidence la partie sélectionnée *)
 let blanchir = Array.map (Array.map (fun (a,b,c)->a/2+128,b/2+128,c/2+128));;
 
+(* interface pour obtenir les dimensions désirée de l'image comprimée *)
 let get_dimensions image =
 	let w,h = dims image in
 	resize_window (w+10) (h+30);
@@ -164,9 +168,7 @@ let get_dimensions image =
 	!nw - w, !nh - h
 ;;
 
-let wait s = let t = Sys.time () in while Sys.time() < t+.s do () done;;
-
-
+(* attend ESC et rend la main *)
 let wait_escape () =
 	let e = ref (wait_next_event [Poll]) in
 	while not !e.keypressed or !e.key <> (char_of_int 27) do

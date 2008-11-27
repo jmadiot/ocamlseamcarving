@@ -1,5 +1,6 @@
 open Graphics;;
 
+(* construit une image de type Graphics.image pour l'affichage exclusivement *)
 let image_of_matrix matrix = 
 	let h = Array.length matrix
 	and w = Array.length matrix.(0) in
@@ -14,6 +15,7 @@ let image_of_matrix matrix =
 	image
 ;;
 
+(* renvoie une couleur correspondant à une intensité dans [0,1] *)
 let rainbow q =
 	let int, float = int_of_float, float_of_int in
 	let n = 7 in
@@ -22,17 +24,18 @@ let rainbow q =
 	let v = int (255.*.rq) in
 	let w,t = 255-v, 255 in
 	match iq with 
-		| 0 -> rgb 0 0 v
-		| 1 -> rgb 0 v t
-		| 2 -> rgb 0 t w
-		| 3 -> rgb v t 0
-		| 4 -> rgb t w 0
-		| 5 -> rgb t 0 v
-		| 6 -> rgb t v t
+		| 0 -> rgb 0 0 v  (* noir puis bleu : peu intense *)
+		| 1 -> rgb 0 v t  (* puis vert/bleu *)
+		| 2 -> rgb 0 t w  (* puis vert *)
+		| 3 -> rgb v t 0  (* puis jaune *)
+		| 4 -> rgb t w 0  (* puis rouge *)
+		| 5 -> rgb t 0 v  (* puis violet *)
+		| 6 -> rgb t v t  (* puis blanc : très intense *)
 		| 7 -> white
 		| _ -> failwith "x%n < x ?";
 ;;
 
+(* même chose, mais en plus modéré (plus gris) *)
 let rainbow_gray q =
 	let int, float = int_of_float, float_of_int in
 	let n = 7 in
@@ -53,10 +56,10 @@ let rainbow_gray q =
 		| _ -> failwith "x%n < x ?";
 ;;
 
-
-
+(* raccourci pour obtenir les dimensions d'une matrice *)
 let dims m = (Array.length m.(0), Array.length m);;
 
+(* le maximum d'une matrice ! *)
 let maxmatrix m =
  	let w,h = dims m in
 	let ma = ref m.(0).(0) in
@@ -68,6 +71,7 @@ let maxmatrix m =
 	!ma
 ;;
 
+(* Affiche la matrice d'énergie joliment, avec des couleurs *)
 let make_rainbow m =
 	let int, float = int_of_float, float_of_int in
 	let w,h = dims m in
@@ -83,7 +87,7 @@ let make_rainbow m =
 	rb
 ;;
 
-
+(* même chose en plus gris *)
 let make_rainbow_gray m =
 	let int, float = int_of_float, float_of_int in
 	let w,h = dims m in
@@ -99,7 +103,7 @@ let make_rainbow_gray m =
 	rb
 ;;
 
-
+(* manipulation RGB *)
 module Triplet = struct
 	let sous triplet1  triplet2 =
 		let a1,b1,c1 = triplet1 in
@@ -131,6 +135,8 @@ end
 
 let sqrt_int n = int_of_float(sqrt(float_of_int n));;
 
+
+(* Calcul de la matrice d'énergie. *)
 let energy_matrix image = 
 	let w,h = dims image in
 	
@@ -199,6 +205,7 @@ let energy_matrix image =
 	energie
 ;;
 
+(* ... *)
 let copy_matrix src =
 	let w,h = dims src in
 	let res = Array.make_matrix h w src.(0).(0) in
@@ -210,34 +217,35 @@ let copy_matrix src =
 	res
 ;;
 
-let min3 a b c = min (max a b) c;;
-let indmin3 a b c = if a<b then if b<c then(0,a)else if a<c then(0,a)else(2,c)else if a<c then(1,b)else if b<c then(1,b)else(2,c);;
+(* renvoie le minimum d'un n-uplet ainsi que son indice *)
 let indmin2 a b = if a<b then (0,a) else (1,b);;
+let indmin3 a b c = if a<b then if b<c then(0,a)else if a<c then(0,a)else(2,c)else if a<c then(1,b)else if b<c then(1,b)else(2,c);;
 
+(* renvoie le cout minimum cumulé de la matrice d'énergie, ainsi que les indices permettant d'atteindre le minimum *)
 let chemin_min energie =
 	let w,h = dims energie in
 
-	let chemins = Array.make_matrix h w 0 in
+	let cost = Array.make_matrix h w 0 in
 	let preds = Array.make_matrix h w (-42) in
 
 	for i = 1 to h-1 do
 		
 		(*cas extremaux*)
-		let ind,x = indmin2 chemins.(i-1).(0  ) chemins.(i-1).(1  ) in preds.(i).(0  ) <- ind;   chemins.(i).(0  ) <- energie.(i).(0  ) + x;
-		let ind,x = indmin2 chemins.(i-1).(w-1) chemins.(i-1).(w-2) in preds.(i).(w-1) <- ind-1; chemins.(i).(w-1) <- energie.(i).(w-1) + x;
+		let ind,x = indmin2 cost.(i-1).(0  ) cost.(i-1).(1  ) in preds.(i).(0  ) <- ind;   cost.(i).(0  ) <- energie.(i).(0  ) + x;
+		let ind,x = indmin2 cost.(i-1).(w-1) cost.(i-1).(w-2) in preds.(i).(w-1) <- ind-1; cost.(i).(w-1) <- energie.(i).(w-1) + x;
 		
 		(*cas generaux*)
 		for j = 1 to w-2 do
-			let ind,x = indmin3 chemins.(i-1).(j-1) chemins.(i-1).(j) chemins.(i-1).(j+1) in
+			let ind,x = indmin3 cost.(i-1).(j-1) cost.(i-1).(j) cost.(i-1).(j+1) in
 			preds.(i).(j) <- ind-1;
-			chemins.(i).(j) <- energie.(i).(j) + x;
+			cost.(i).(j) <- energie.(i).(j) + x;
 		done;
 	done;
 
-	chemins, preds
+	cost, preds
 ;;
 
-
+(* Détermine la liste des pixels à enlever à l'aide de preds et de la dernière ligne de cost*)
 let build_chemin energie cost preds =
 	let w,h = dims energie in
 	let chemin = Array.make h (-1,-1) in
@@ -254,7 +262,7 @@ let build_chemin energie cost preds =
 	chemin
 ;;
 
-
+(* construit une nouvelle matrice à laquelle on a enlevé la bonne colonne/ligne *)
 let detruire_colonne matrice chemin =
   let w,h = dims matrice in
   let new_matrix = Array.make_matrix h (w-1) matrice.(0).(0) in
@@ -271,6 +279,8 @@ let detruire_colonne matrice chemin =
     done;
 new_matrix;;
 
+
+(* applique le filtre obtenu grace à l'utilisateur à la matrice d'énergie *)
 let apply_filter energy filtre =
 	let ma = maxmatrix energy in
 	let w,h = dims filtre in
@@ -283,6 +293,7 @@ let apply_filter energy filtre =
 	done;
 ;;
 
+(* Renvoie la transposée d'une matrice *)
 let rotate image = 
 	let w,h = dims image in
 	let image_rotate = Array.make_matrix w h image.(0).(0) in	
@@ -294,6 +305,7 @@ let rotate image =
 	image_rotate
 ;;
 
+(* Module principal. Description dans traitement.mli *)
 module SeamCarving = 
 struct
 	type t = {
@@ -375,6 +387,5 @@ struct
 			synchronize();
 		done;
 		auto_synchronize true
-		
 end;;
 
