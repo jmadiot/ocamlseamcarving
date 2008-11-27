@@ -13,7 +13,7 @@
 
 \begin{document}
 \maketitle{}
-\abstract{Le but de ce projet est d'écrire un programme Caml permettant de lire une image et de la redimensionner par la méthode du seam carving}
+\abstract{Le but de ce projet est d'écrire un programme Caml permettant de lire une image et de la redimensionner par la méthode du seam carving.}
 
 \section{Cahier des Charges}
 
@@ -24,6 +24,7 @@ Réalisation d'un programme permettant de :
 \item{afficher cette image}
 \item{redimensionner l'image en hauteur ou/et en largeur}
 \item{permettre la modification de la fonction d'énergie par la souris}
+\item{enregistrer l'image dans un fichier}
 
 \end{itemize}
 
@@ -31,10 +32,10 @@ Réalisation d'un programme permettant de :
 
 Nous avons utilisé plusieurs fichiers pour réaliser ce projet : 
 \begin{itemize}
-\item{interface.ml permet de gérer l'ensemble de l'interface} 
-\item{ppm.ml permet de gérer les images. Il permet de gérer des fonctions de lecture d'images en ppm ainsi que de les  convertir en matrice}
-\item{main.ml est le fichier principal qui utilise les fonctions définies dans les autres fichiers.}
-\item{traitement.ml permet de gérer les opérations sur les matrices d'images (enlever une colonne).} 
+\item{{\tt interface.ml} permet de gérer l'ensemble de l'interface} 
+\item{{\tt ppm.ml} permet de gérer les images. Il permet de gérer des fonctions de lecture d'images en ppm ainsi que de les  convertir en matrice.}
+\item{{\tt main.ml} est le fichier principal qui utilise les fonctions définies dans les autres fichiers.}
+\item{{\tt traitement.ml} permet de gérer les opérations sur les matrices d'images (enlever une colonne).} 
 \end{itemize}
 
 \section{Solutions utilisées et choix effectués}
@@ -85,11 +86,10 @@ L'utilisateur peut déterminer à l'aide de la souris la taille de l'image final
 On a créé le module {\tt Interface} qui permet de regrouper les fonctions d'interface. La modularité
 accélère le développement des interfaces car l'objectif est fixé, et la manière dont l'utilisateur entre les données n'intervient pas, permettant ainsi au programmeur d'interface d'effectuer des modifications sans interférer avec les programmeurs utilisant le module. (C'est d'autant plus vrai pour les interfaces que le développement d'une nouvelle fonctionalité implique souvent de réfléchir à une interface correspondante.)
 
-\section{perspectives d'évolution}
+\section{Perspectives d'évolution}
 
-On pourrait trouver d'autres fonctions d'énergie à implémenter. Par exemple, utiliser le détecteur de Harris, mais il reste à relier les bords détectés à une fonction d'énergie, mais l'efficacité de cette méthode n'est pas assurée.
+On pourrait trouver d'autres fonctions d'énergie à implémenter.
 
 On pourrait ajouter un mode pour agrandir les images, aussi.
 
-On pourrait enregistrer l'image obtenue dans un fichier. C'est pas bien compliqué.
 \end{document}
