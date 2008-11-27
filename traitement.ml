@@ -1,6 +1,6 @@
 open Graphics;;
 
-let get_image matrix = 
+let image_of_matrix matrix = 
 	let h = Array.length matrix
 	and w = Array.length matrix.(0) in
 	let mat = Array.make_matrix h w 0 in
@@ -11,7 +11,6 @@ let get_image matrix =
 		done;
 	done;
 	let image = make_image mat in
-	(*draw_image image x y;*)
 	image
 ;;
 
@@ -132,24 +131,6 @@ end
 
 let sqrt_int n = int_of_float(sqrt(float_of_int n));;
 
-(*let energy_pixel image x y =
-	let w,h = dims image in
-	let xa, xb, fx = ref (x-1), ref (x+1), ref 1
-	and ya, yb, fy = ref (y-1), ref (y+1), ref 1 in
-	if x=0   then begin incr xa; incr fx; end;
-	if x=w-1 then begin decr xb; incr fx; end;
-	if y=0   then begin incr ya; incr fy; end;
-	if y=h-1 then begin decr yb; incr fy; end;
-	let xar,xag,xab = image.(y).(!xa)
-	and xbr,xbg,xbb = image.(y).(!xb)
-	and yar,yag,yab = image.(!ya).(x)
-	and ybr,ybg,ybb = image.(!yb).(x) in
-	let dxr,dxg,dxb = xbr-xar,xbg-xag,xbb-xab
-	and dyr,dyg,dyb = ybr-yar,ybg-yag,ybb-yab
-	in
-	sqrt_int ( !fx* !fx*(dxr*dxr+dxg*dxg+dxb*dxb) + !fy* !fy*(dyr*dyr+dyg*dyg+dyb*dyb) )
-;;
-*)
 let energy_matrix image = 
 	let w,h = dims image in
 	
@@ -313,21 +294,7 @@ let rotate image =
 	image_rotate
 ;;
 
-module type SeamCarvingType =
-  sig
-    type t
-    val init : (int * int * int) array array -> t
-    val shrink : t -> unit
-    val get : t -> (int * int * int) array array
-    val expand : t -> int -> unit
-    val get_energy : t -> int array array
-    val redim : t -> int*int -> unit
-    val replay : t -> unit
-    val replayrev : t -> unit
-  end
-;;
-
-module Seam_raw = 
+module SeamCarving = 
 struct
 	type t = {
 		mutable pic : (int*int*int) array array;
@@ -358,7 +325,7 @@ struct
 		for i = 1 to n do
 			shrink seam;
 			clear_graph();
-			let im = get_image (get seam) in
+			let im = image_of_matrix (get seam) in
 			draw_image im 0 0;
 			seam.video <- im :: seam.video;
 			draw_image (make_image (make_rainbow (get_energy seam))) energypos 0;
@@ -410,7 +377,4 @@ struct
 		auto_synchronize true
 		
 end;;
-
-module SeamCarving = (Seam_raw:SeamCarvingType);;
-
 
