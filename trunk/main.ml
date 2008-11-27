@@ -1,13 +1,14 @@
 open Graphics;;
 open Traitement;;
 
-open_graph " 800x600";;
-set_window_title "Seam Carving";;
 
-if Array.length (Sys.argv) <> 2 or Sys.argv.(1) = "help" then begin
+if Array.length Sys.argv = 1 or Sys.argv.(1) = "help" then begin
 	(* Aide utilisateur *)
-	print_endline (Printf.sprintf "Utilisation : %s image.jpg" Sys.argv.(0));
+	print_endline (Printf.sprintf "Utilisation : %s image.jpg [sortie.jpg]" Sys.argv.(0));
 end else begin
+	open_graph " 800x600";
+	set_window_title "Seam Carving";
+	
 	let image = Ppm.file Sys.argv.(1) in
 	
 	(* Interface utilisateur : que faire ? *)
@@ -26,6 +27,10 @@ end else begin
 	
 	(* réduction/agrandissement dans les deux sens de l'image *)
 	SeamCarving.redim seam reductions;
+	
+	(* Si nom précisé, enregistrer dans un fichier *)
+	let nom = if Array.length Sys.argv >= 3 then Sys.argv.(2) else "output.ppm" in
+	Ppm.save nom (SeamCarving.get seam);
 	
 	(* fait joujou avec le résultat *)
 	SeamCarving.replayrev seam;
