@@ -1,0 +1,1 @@
+You can shrink pictures while keeping what's important in them. That's what will be done using OCaml in this project.
